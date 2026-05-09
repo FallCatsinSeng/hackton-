@@ -1,0 +1,26 @@
+services:
+  dev:
+    build: .
+    container_name: arisan-dev
+    volumes:
+      - ./arisan_protocol:/workspace/arisan_protocol
+      - solana-install-cache:/root/.local/share/solana
+      - cargo-cache:/root/.cargo/registry
+    working_dir: /workspace/arisan_protocol
+    privileged: true
+    stdin_open: true
+    tty: true
+    entrypoint:
+      - bash
+      - -c
+      - |
+        if [ ! -f /root/.local/share/solana/.upgraded ]; then
+          echo '==> Upgrading Solana to stable (first run only)...'
+          sh -c "$(curl -sSfL https://release.anza.xyz/stable/install)"
+          touch /root/.local/share/solana/.upgraded
+        fi
+        exec /bin/bash
+
+volumes:
+  solana-install-cache:
+  cargo-cache:
