@@ -8,6 +8,9 @@ services:
       - cargo-cache:/root/.cargo/registry
     working_dir: /workspace/arisan_protocol
     privileged: true
+    ports:
+      - "8899:8899"
+      - "8900:8900"
     stdin_open: true
     tty: true
     entrypoint:

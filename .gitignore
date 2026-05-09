@@ -1,6 +1,15 @@
 # Docker
 .env
+.env.local
 
 # OS
 .DS_Store
 Thumbs.db
+*.swp
+*.swo
+
+# Logs
+*.log
+logs/
+
+node_modules/
