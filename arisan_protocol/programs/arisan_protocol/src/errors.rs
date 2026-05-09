@@ -50,4 +50,26 @@ pub enum ArisanError {
     NothingToSlash,
     #[msg("No active members to distribute to")]
     NoActiveMembers,
+    
+    // Creator Lottery Errors
+    #[msg("Creator share must be between 20% and 70%")]
+    InvalidCreatorShare,
+    #[msg("Ticket price must be at least 0.1 USDC")]
+    TicketPriceTooLow,
+    #[msg("Maximum 5 winners allowed")]
+    TooManyWinners,
+    #[msg("Sum of all percentages must equal 100")]
+    InvalidPercentageSum,
+    #[msg("End time must be in the future")]
+    InvalidEndTime,
+    #[msg("Math overflow")]
+    MathOverflow,
+    #[msg("Amount sent is not a multiple of ticket price")]
+    InvalidTicketAmount,
+    #[msg("Lottery has already ended")]
+    LotteryEnded,
+    #[msg("Lottery is still active, wait until end time")]
+    LotteryStillActive,
+    #[msg("Lottery already drawn")]
+    LotteryAlreadyDrawn,
 }

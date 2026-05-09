@@ -45,4 +45,34 @@ pub mod arisan_protocol {
     pub fn slash_defaulter(ctx: Context<SlashDefaulter>) -> Result<()> {
         instructions::slash_defaulter::handler(ctx)
     }
+
+    // --- CREATOR LOTTERY INSTRUCTIONS ---
+
+    pub fn initialize_creator_lottery(
+        ctx: Context<InitCreatorLottery>,
+        ticket_price: u64,
+        creator_share_pct: u8,
+        winner_shares_pct: Vec<u8>,
+        end_time: i64,
+    ) -> Result<()> {
+        instructions::init_creator_lottery::handler(
+            ctx,
+            ticket_price,
+            creator_share_pct,
+            winner_shares_pct,
+            end_time,
+        )
+    }
+
+    pub fn buy_lottery_ticket(ctx: Context<BuyLotteryTicket>, amount_usdc: u64) -> Result<()> {
+        instructions::buy_lottery_ticket::handler(ctx, amount_usdc)
+    }
+
+    pub fn draw_lottery(ctx: Context<DrawAndDistributeLottery>) -> Result<()> {
+        instructions::draw_lottery::handler(ctx)
+    }
+
+    pub fn claim_lottery_prize(ctx: Context<ClaimLotteryPrize>) -> Result<()> {
+        instructions::claim_lottery_prize::handler(ctx)
+    }
 }

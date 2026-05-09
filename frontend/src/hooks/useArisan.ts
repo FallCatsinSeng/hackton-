@@ -4,7 +4,6 @@ import { PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY } from '@solana/web3.js'
 import {
   TOKEN_PROGRAM_ID,
   getAssociatedTokenAddress,
-  createAssociatedTokenAccountInstruction,
 } from '@solana/spl-token'
 import idl from '../idl/arisan_protocol.json'
 
@@ -38,6 +37,27 @@ export interface ReputationInfo {
   completedGroups: number
 }
 
+export interface LotteryParticipant {
+  wallet: string
+  ticketsBought: number
+}
+
+export interface LotteryInfo {
+  address: string
+  creator: string
+  usdcMint: string
+  vault: string
+  ticketPrice: number
+  creatorSharePct: number
+  winnerSharesPct: number[]
+  endTime: number
+  totalTicketsSold: number
+  totalPool: number
+  participants: LotteryParticipant[]
+  isActive: boolean
+  winningWallets: string[]
+}
+
 export function useArisan() {
   const { connection } = useConnection()
   const wallet = useWallet()
@@ -46,14 +66,43 @@ export function useArisan() {
     if (!wallet.publicKey || !wallet.signTransaction || !wallet.signAllTransactions) {
       throw new Error('Wallet not connected')
     }
-    const provider = new AnchorProvider(connection, wallet as any, { commitment: 'confirmed' })
+    const provider = new AnchorProvider(connection, wallet as any, {
+      commitment: 'confirmed',
+      skipPreflight: true,
+      preflightCommitment: 'processed',
+    })
     return new Program(idl as any, provider)
   }
 
+  const getReadonlyProgram = () => {
+    const provider = new AnchorProvider(connection, {} as any, {
+      commitment: 'confirmed',
+      skipPreflight: true,
+    })
+    return new Program(idl as any, provider)
+  }
+
+  // Helper: use Anchor .rpc() directly - works correctly with Phantom wallet
+  const sendTx = async (txBuilder: any): Promise<string> => {
+    if (!wallet.publicKey || !wallet.signTransaction) throw new Error('Wallet not connected')
+    try {
+      const txId = await txBuilder.rpc({ skipPreflight: true, commitment: 'confirmed' })
+      return txId
+    } catch (e: any) {
+      const logs = e?.logs?.join('\n') || ''
+      console.error('TX logs:', logs)
+      const anchor = logs.match(/AnchorError.+?: (.+)/)?.[1] || logs.match(/Program log: Error: (.+)/)?.[1]
+      throw new Error(anchor || e.message)
+    }
+  }
+
+  // =====================
+  // ARISAN GROUP
+  // =====================
+
   const fetchAllGroups = async (): Promise<GroupInfo[]> => {
     try {
-      const provider = new AnchorProvider(connection, {} as any, { commitment: 'confirmed' })
-      const program = new Program(idl as any, provider)
+      const program = getReadonlyProgram()
       const accounts = await (program.account as any).arisanGroup.all()
       return accounts.map((a: any) => ({
         address: a.publicKey.toBase58(),
@@ -81,8 +130,7 @@ export function useArisan() {
 
   const fetchGroup = async (address: string): Promise<GroupInfo | null> => {
     try {
-      const provider = new AnchorProvider(connection, {} as any, { commitment: 'confirmed' })
-      const program = new Program(idl as any, provider)
+      const program = getReadonlyProgram()
       const pk = new PublicKey(address)
       const a = await (program.account as any).arisanGroup.fetch(pk)
       return {
@@ -111,8 +159,7 @@ export function useArisan() {
 
   const fetchReputation = async (userAddress: string): Promise<ReputationInfo | null> => {
     try {
-      const provider = new AnchorProvider(connection, {} as any, { commitment: 'confirmed' })
-      const program = new Program(idl as any, provider)
+      const program = getReadonlyProgram()
       const user = new PublicKey(userAddress)
       const [repPda] = PublicKey.findProgramAddressSync(
         [Buffer.from('reputation'), user.toBuffer()],
@@ -144,7 +191,7 @@ export function useArisan() {
       PROGRAM_ID
     )
 
-    const tx = await (program.methods as any)
+    return sendTx((program.methods as any)
       .initializeGroup(new BN(duesAmount), maxMembers)
       .accounts({
         admin: wallet.publicKey,
@@ -154,9 +201,7 @@ export function useArisan() {
         systemProgram: SystemProgram.programId,
         tokenProgram: TOKEN_PROGRAM_ID,
         rent: SYSVAR_RENT_PUBKEY,
-      })
-      .rpc()
-    return tx
+      }))
   }
 
   const joinGroup = async (groupAddress: string): Promise<string> => {
@@ -169,16 +214,14 @@ export function useArisan() {
       PROGRAM_ID
     )
 
-    const tx = await (program.methods as any)
+    return sendTx((program.methods as any)
       .joinGroup()
       .accounts({
         user: wallet.publicKey,
         group: groupPk,
         reputation: repPda,
         systemProgram: SystemProgram.programId,
-      })
-      .rpc()
-    return tx
+      }))
   }
 
   const payDues = async (groupAddress: string, vaultAddress: string, usdcMint: string): Promise<string> => {
@@ -195,7 +238,7 @@ export function useArisan() {
       PROGRAM_ID
     )
 
-    const tx = await (program.methods as any)
+    return sendTx((program.methods as any)
       .payDues()
       .accounts({
         user: wallet.publicKey,
@@ -204,9 +247,7 @@ export function useArisan() {
         vault: vaultPk,
         reputation: repPda,
         tokenProgram: TOKEN_PROGRAM_ID,
-      })
-      .rpc()
-    return tx
+      }))
   }
 
   const drawWinner = async (groupAddress: string, group: GroupInfo): Promise<string> => {
@@ -217,7 +258,6 @@ export function useArisan() {
     const vaultPk = new PublicKey(group.vault)
     const mintPk = new PublicKey(group.usdcMint)
 
-    // Pick first eligible (not won) member as the guessed winner for demo
     const eligible = group.members.filter(m => !m.hasWon)
     if (!eligible.length) throw new Error('No eligible members')
     const guessedWinner = new PublicKey(eligible[0].wallet)
@@ -232,7 +272,7 @@ export function useArisan() {
       PROGRAM_ID
     )
 
-    const tx = await (program.methods as any)
+    return sendTx((program.methods as any)
       .drawWinner()
       .accounts({
         admin: wallet.publicKey,
@@ -243,10 +283,156 @@ export function useArisan() {
         lockedPayout,
         tokenProgram: TOKEN_PROGRAM_ID,
         systemProgram: SystemProgram.programId,
-      })
-      .rpc()
-    return tx
+      }))
   }
 
-  return { fetchAllGroups, fetchGroup, fetchReputation, createGroup, joinGroup, payDues, drawWinner }
+  // =====================
+  // CREATOR LOTTERY
+  // =====================
+
+  const fetchAllLotteries = async (): Promise<LotteryInfo[]> => {
+    try {
+      const program = getReadonlyProgram()
+      const accounts = await (program.account as any).creatorLottery.all()
+      return accounts.map((a: any) => ({
+        address: a.publicKey.toBase58(),
+        creator: a.account.creator.toBase58(),
+        usdcMint: a.account.usdcMint.toBase58(),
+        vault: a.account.vault.toBase58(),
+        ticketPrice: a.account.ticketPrice.toNumber(),
+        creatorSharePct: a.account.creatorSharePct,
+        winnerSharesPct: Array.from(a.account.winnerSharesPct as Uint8Array),
+        endTime: a.account.endTime.toNumber(),
+        totalTicketsSold: a.account.totalTicketsSold.toNumber(),
+        totalPool: a.account.totalPool.toNumber(),
+        participants: a.account.participants.map((p: any) => ({
+          wallet: p.wallet.toBase58(),
+          ticketsBought: p.ticketsBought.toNumber(),
+        })),
+        isActive: a.account.isActive,
+        winningWallets: a.account.winningWallets.map((w: any) => w.toBase58()),
+      }))
+    } catch (e) {
+      console.error('fetchAllLotteries', e)
+      return []
+    }
+  }
+
+  const initializeLottery = async (
+    usdcMint: string,
+    ticketPrice: number,
+    creatorSharePct: number,
+    winnerSharesPct: number[],
+    endTimestamp: number
+  ): Promise<string> => {
+    const program = getProgram()
+    if (!wallet.publicKey) throw new Error('Wallet not connected')
+
+    const mintPk = new PublicKey(usdcMint)
+    const endTimeBN = new BN(endTimestamp)
+
+    const [lotteryPda] = PublicKey.findProgramAddressSync(
+      [
+        Buffer.from('creator_lottery'),
+        wallet.publicKey.toBuffer(),
+        endTimeBN.toArrayLike(Buffer, 'le', 8),
+      ],
+      PROGRAM_ID
+    )
+    const [vaultPda] = PublicKey.findProgramAddressSync(
+      [Buffer.from('lottery_vault'), lotteryPda.toBuffer()],
+      PROGRAM_ID
+    )
+
+    return sendTx((program.methods as any)
+      .initializeCreatorLottery(
+        new BN(ticketPrice),
+        creatorSharePct,
+        Buffer.from(winnerSharesPct),
+        endTimeBN
+      )
+      .accounts({
+        creator: wallet.publicKey,
+        lottery: lotteryPda,
+        usdcMint: mintPk,
+        vault: vaultPda,
+        systemProgram: SystemProgram.programId,
+        tokenProgram: TOKEN_PROGRAM_ID,
+        rent: SYSVAR_RENT_PUBKEY,
+      }))
+  }
+
+  const buyLotteryTicket = async (lottery: LotteryInfo, numTickets: number): Promise<string> => {
+    const program = getProgram()
+    if (!wallet.publicKey) throw new Error('Wallet not connected')
+
+    const lotteryPk = new PublicKey(lottery.address)
+    const vaultPk = new PublicKey(lottery.vault)
+    const mintPk = new PublicKey(lottery.usdcMint)
+    const buyerTokenAccount = await getAssociatedTokenAddress(mintPk, wallet.publicKey)
+    const amountUsdc = lottery.ticketPrice * numTickets
+
+    return sendTx((program.methods as any)
+      .buyLotteryTicket(new BN(amountUsdc))
+      .accounts({
+        buyer: wallet.publicKey,
+        lottery: lotteryPk,
+        buyerTokenAccount,
+        vault: vaultPk,
+        tokenProgram: TOKEN_PROGRAM_ID,
+      }))
+  }
+
+  const drawLottery = async (lottery: LotteryInfo): Promise<string> => {
+    const program = getProgram()
+    if (!wallet.publicKey) throw new Error('Wallet not connected')
+
+    const lotteryPk = new PublicKey(lottery.address)
+    const vaultPk = new PublicKey(lottery.vault)
+
+    return sendTx((program.methods as any)
+      .drawLottery()
+      .accounts({
+        adminOrCreator: wallet.publicKey,
+        lottery: lotteryPk,
+        vault: vaultPk,
+        tokenProgram: TOKEN_PROGRAM_ID,
+      }))
+  }
+
+  const claimLotteryPrize = async (lottery: LotteryInfo): Promise<string> => {
+    const program = getProgram()
+    if (!wallet.publicKey) throw new Error('Wallet not connected')
+
+    const lotteryPk = new PublicKey(lottery.address)
+    const vaultPk = new PublicKey(lottery.vault)
+    const mintPk = new PublicKey(lottery.usdcMint)
+    const destinationTokenAccount = await getAssociatedTokenAddress(mintPk, wallet.publicKey)
+
+    return sendTx((program.methods as any)
+      .claimLotteryPrize()
+      .accounts({
+        claimer: wallet.publicKey,
+        lottery: lotteryPk,
+        vault: vaultPk,
+        destinationTokenAccount,
+        tokenProgram: TOKEN_PROGRAM_ID,
+      }))
+  }
+
+  return {
+    fetchAllGroups,
+    fetchGroup,
+    fetchReputation,
+    createGroup,
+    joinGroup,
+    payDues,
+    drawWinner,
+    // Lottery
+    fetchAllLotteries,
+    initializeLottery,
+    buyLotteryTicket,
+    drawLottery,
+    claimLotteryPrize,
+  }
 }

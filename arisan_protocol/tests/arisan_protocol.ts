@@ -304,4 +304,145 @@ describe("arisan_protocol", () => {
 
     console.log("✅ Reputation system verified");
   });
+
+  // ============================================
+  // TEST 6: Creator Lottery Initialization
+  // ============================================
+  let lotteryPda: anchor.web3.PublicKey;
+  let lotteryBump: number;
+  let lotteryVaultPda: anchor.web3.PublicKey;
+  let lotteryVaultBump: number;
+  let endTime: anchor.BN;
+
+  it("Initializes a creator lottery", async () => {
+    endTime = new BN(Math.floor(Date.now() / 1000) + 5); // 5 seconds from now
+    
+    [lotteryPda, lotteryBump] = anchor.web3.PublicKey.findProgramAddressSync(
+      [Buffer.from("creator_lottery"), admin.publicKey.toBuffer(), endTime.toArrayLike(Buffer, "le", 8)],
+      program.programId
+    );
+
+    [lotteryVaultPda, lotteryVaultBump] = anchor.web3.PublicKey.findProgramAddressSync(
+      [Buffer.from("lottery_vault"), lotteryPda.toBuffer()],
+      program.programId
+    );
+
+    const ticketPrice = new BN(100_000); // 0.1 USDC
+    const creatorShare = 40;
+    const winnerShares = Buffer.from([30, 20, 10]); // 3 winners: 30%, 20%, 10%
+
+    await program.methods
+      .initializeCreatorLottery(ticketPrice, creatorShare, winnerShares, endTime)
+      .accounts({
+        creator: admin.publicKey,
+        lottery: lotteryPda,
+        usdcMint: usdcMint,
+        vault: lotteryVaultPda,
+        systemProgram: anchor.web3.SystemProgram.programId,
+        tokenProgram: TOKEN_PROGRAM_ID,
+        rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+      })
+      .signers([admin])
+      .rpc();
+
+    const lottery = await program.account.creatorLottery.fetch(lotteryPda);
+    expect(lottery.creator.toBase58()).to.equal(admin.publicKey.toBase58());
+    expect(lottery.ticketPrice.toNumber()).to.equal(ticketPrice.toNumber());
+    expect(lottery.creatorSharePct).to.equal(creatorShare);
+    expect(lottery.isActive).to.be.true;
+
+    console.log("✅ Creator Lottery initialized successfully");
+  });
+
+  // ============================================
+  // TEST 7: Users Buy Tickets
+  // ============================================
+  it("Users buy lottery tickets", async () => {
+    // User1 buys 5 tickets (0.5 USDC)
+    await program.methods
+      .buyLotteryTicket(new BN(500_000))
+      .accounts({
+        buyer: user1.publicKey,
+        lottery: lotteryPda,
+        buyerTokenAccount: user1UsdcAccount,
+        vault: lotteryVaultPda,
+        tokenProgram: TOKEN_PROGRAM_ID,
+      })
+      .signers([user1])
+      .rpc();
+
+    // User2 buys 15 tickets (1.5 USDC)
+    await program.methods
+      .buyLotteryTicket(new BN(1_500_000))
+      .accounts({
+        buyer: user2.publicKey,
+        lottery: lotteryPda,
+        buyerTokenAccount: user2UsdcAccount,
+        vault: lotteryVaultPda,
+        tokenProgram: TOKEN_PROGRAM_ID,
+      })
+      .signers([user2])
+      .rpc();
+
+    const lottery = await program.account.creatorLottery.fetch(lotteryPda);
+    expect(lottery.totalTicketsSold.toNumber()).to.equal(20);
+    expect(lottery.totalPool.toNumber()).to.equal(2_000_000);
+    expect(lottery.participants.length).to.equal(2);
+
+    console.log(`✅ Tickets bought! Total sold: ${lottery.totalTicketsSold.toNumber()}`);
+  });
+
+  // ============================================
+  // TEST 8: Draw Lottery
+  // ============================================
+  it("Draws the lottery after end time", async () => {
+    // Wait for end time to pass
+    console.log("Waiting for lottery to end...");
+    await new Promise((resolve) => setTimeout(resolve, 6000));
+
+    await program.methods
+      .drawLottery()
+      .accounts({
+        adminOrCreator: admin.publicKey,
+        lottery: lotteryPda,
+        vault: lotteryVaultPda,
+        tokenProgram: TOKEN_PROGRAM_ID,
+      })
+      .signers([admin])
+      .rpc();
+
+    const lottery = await program.account.creatorLottery.fetch(lotteryPda);
+    expect(lottery.isActive).to.be.false;
+    expect(lottery.winningWallets.length).to.equal(3); // 3 winners defined
+
+    console.log("🎉 Lottery drawn!");
+    console.log("   Winners:", lottery.winningWallets.map(w => w.toBase58().substring(0,8)));
+  });
+
+  // ============================================
+  // TEST 9: Claim Prize
+  // ============================================
+  it("Creator claims their percentage", async () => {
+    const preBalance = Number((await getAccount(provider.connection, adminUsdcAccount)).amount);
+    
+    await program.methods
+      .claimLotteryPrize()
+      .accounts({
+        claimer: admin.publicKey,
+        lottery: lotteryPda,
+        vault: lotteryVaultPda,
+        destinationTokenAccount: adminUsdcAccount,
+        tokenProgram: TOKEN_PROGRAM_ID,
+      })
+      .signers([admin])
+      .rpc();
+
+    const postBalance = Number((await getAccount(provider.connection, adminUsdcAccount)).amount);
+    const claimed = postBalance - preBalance;
+    
+    // Creator share was 40% of 2_000_000 = 800_000
+    expect(claimed).to.equal(800_000);
+    console.log(`✅ Creator claimed ${claimed} USDC lamports (40%)`);
+  });
+
 });

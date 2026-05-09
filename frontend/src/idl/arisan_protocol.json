@@ -8,178 +8,1447 @@
   },
   "instructions": [
     {
-      "name": "claim_unlocked",
-      "docs": ["Claim the next unlocked portion of locked funds (requires paid dues)."],
-      "discriminator": [70, 139, 1, 246, 166, 193, 64, 143],
+      "name": "buy_lottery_ticket",
+      "discriminator": [
+        88,
+        10,
+        212,
+        209,
+        116,
+        244,
+        214,
+        255
+      ],
       "accounts": [
-        { "name": "user", "writable": true, "signer": true },
-        { "name": "group" },
-        { "name": "locked_payout", "writable": true },
-        { "name": "reputation", "writable": true, "pda": { "seeds": [{ "kind": "const", "value": [114,101,112,117,116,97,116,105,111,110] }, { "kind": "account", "path": "user" }] } },
-        { "name": "user_token_account", "writable": true },
-        { "name": "vault", "writable": true },
-        { "name": "token_program", "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA" }
+        {
+          "name": "buyer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "lottery",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  114,
+                  101,
+                  97,
+                  116,
+                  111,
+                  114,
+                  95,
+                  108,
+                  111,
+                  116,
+                  116,
+                  101,
+                  114,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "lottery.creator",
+                "account": "CreatorLottery"
+              },
+              {
+                "kind": "account",
+                "path": "lottery.end_time",
+                "account": "CreatorLottery"
+              }
+            ]
+          }
+        },
+        {
+          "name": "buyer_token_account",
+          "writable": true
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  111,
+                  116,
+                  116,
+                  101,
+                  114,
+                  121,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "lottery"
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount_usdc",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "claim_lottery_prize",
+      "discriminator": [
+        52,
+        56,
+        145,
+        142,
+        169,
+        97,
+        28,
+        116
+      ],
+      "accounts": [
+        {
+          "name": "claimer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "lottery",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  114,
+                  101,
+                  97,
+                  116,
+                  111,
+                  114,
+                  95,
+                  108,
+                  111,
+                  116,
+                  116,
+                  101,
+                  114,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "lottery.creator",
+                "account": "CreatorLottery"
+              },
+              {
+                "kind": "account",
+                "path": "lottery.end_time",
+                "account": "CreatorLottery"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  111,
+                  116,
+                  116,
+                  101,
+                  114,
+                  121,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "lottery"
+              }
+            ]
+          }
+        },
+        {
+          "name": "destination_token_account",
+          "writable": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "claim_unlocked",
+      "docs": [
+        "Claim the next unlocked portion of locked funds (requires paid dues)."
+      ],
+      "discriminator": [
+        70,
+        139,
+        1,
+        246,
+        166,
+        193,
+        64,
+        143
+      ],
+      "accounts": [
+        {
+          "name": "user",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "group"
+        },
+        {
+          "name": "locked_payout",
+          "writable": true
+        },
+        {
+          "name": "reputation",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  112,
+                  117,
+                  116,
+                  97,
+                  116,
+                  105,
+                  111,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              }
+            ]
+          }
+        },
+        {
+          "name": "user_token_account",
+          "writable": true
+        },
+        {
+          "name": "vault",
+          "writable": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "draw_lottery",
+      "discriminator": [
+        17,
+        188,
+        124,
+        77,
+        90,
+        34,
+        97,
+        19
+      ],
+      "accounts": [
+        {
+          "name": "admin_or_creator",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "lottery",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  114,
+                  101,
+                  97,
+                  116,
+                  111,
+                  114,
+                  95,
+                  108,
+                  111,
+                  116,
+                  116,
+                  101,
+                  114,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "lottery.creator",
+                "account": "CreatorLottery"
+              },
+              {
+                "kind": "account",
+                "path": "lottery.end_time",
+                "account": "CreatorLottery"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  111,
+                  116,
+                  116,
+                  101,
+                  114,
+                  121,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "lottery"
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
       ],
       "args": []
     },
     {
       "name": "draw_winner",
-      "docs": ["Draw a winner and execute delayed payout based on reputation score."],
-      "discriminator": [250, 103, 118, 147, 219, 235, 169, 220],
+      "docs": [
+        "Draw a winner and execute delayed payout based on reputation score."
+      ],
+      "discriminator": [
+        250,
+        103,
+        118,
+        147,
+        219,
+        235,
+        169,
+        220
+      ],
       "accounts": [
-        { "name": "admin", "writable": true, "signer": true },
-        { "name": "group", "writable": true },
-        { "name": "winner_token_account", "writable": true },
-        { "name": "winner_reputation", "docs": ["Winner's reputation PDA — mutable so we can update score after payout."], "writable": true },
-        { "name": "vault", "docs": ["Vault holding the USDC pool."], "writable": true },
-        { "name": "locked_payout", "docs": ["The locked payout PDA for this winner+group combo."], "writable": true, "pda": { "seeds": [{ "kind": "const", "value": [108,111,99,107,101,100,95,112,97,121,111,117,116] }, { "kind": "account", "path": "group" }, { "kind": "account", "path": "winner_token_account.owner", "account": "TokenAccount" }] } },
-        { "name": "token_program", "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA" },
-        { "name": "system_program", "address": "11111111111111111111111111111111" }
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "group",
+          "writable": true
+        },
+        {
+          "name": "winner_token_account",
+          "writable": true
+        },
+        {
+          "name": "winner_reputation",
+          "docs": [
+            "Winner's reputation PDA — mutable so we can update score after payout."
+          ],
+          "writable": true
+        },
+        {
+          "name": "vault",
+          "docs": [
+            "Vault holding the USDC pool."
+          ],
+          "writable": true
+        },
+        {
+          "name": "locked_payout",
+          "docs": [
+            "The locked payout PDA for this winner+group combo."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  111,
+                  99,
+                  107,
+                  101,
+                  100,
+                  95,
+                  112,
+                  97,
+                  121,
+                  111,
+                  117,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "group"
+              },
+              {
+                "kind": "account",
+                "path": "winner_token_account.owner",
+                "account": "TokenAccount"
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
       ],
       "args": []
     },
     {
-      "name": "initialize_group",
-      "docs": ["Create a new arisan group with a USDC vault."],
-      "discriminator": [191, 73, 34, 229, 233, 213, 189, 173],
-      "accounts": [
-        { "name": "admin", "writable": true, "signer": true },
-        { "name": "group", "writable": true },
-        { "name": "usdc_mint", "docs": ["The USDC mint (or any SPL token mint."] },
-        { "name": "vault", "docs": ["The vault token account (PDA-owned) to hold USDC deposits."], "writable": true, "pda": { "seeds": [{ "kind": "const", "value": [118,97,117,108,116] }, { "kind": "account", "path": "group" }] } },
-        { "name": "system_program", "address": "11111111111111111111111111111111" },
-        { "name": "token_program", "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA" },
-        { "name": "rent", "address": "SysvarRent111111111111111111111111111111111" }
+      "name": "initialize_creator_lottery",
+      "discriminator": [
+        133,
+        148,
+        255,
+        210,
+        133,
+        30,
+        91,
+        52
       ],
-      "args": [{ "name": "dues_amount", "type": "u64" }, { "name": "max_members", "type": "u8" }]
+      "accounts": [
+        {
+          "name": "creator",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "lottery",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  114,
+                  101,
+                  97,
+                  116,
+                  111,
+                  114,
+                  95,
+                  108,
+                  111,
+                  116,
+                  116,
+                  101,
+                  114,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "creator"
+              },
+              {
+                "kind": "arg",
+                "path": "end_time"
+              }
+            ]
+          }
+        },
+        {
+          "name": "usdc_mint"
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  111,
+                  116,
+                  116,
+                  101,
+                  114,
+                  121,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "lottery"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "rent",
+          "address": "SysvarRent111111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "ticket_price",
+          "type": "u64"
+        },
+        {
+          "name": "creator_share_pct",
+          "type": "u8"
+        },
+        {
+          "name": "winner_shares_pct",
+          "type": "bytes"
+        },
+        {
+          "name": "end_time",
+          "type": "i64"
+        }
+      ]
+    },
+    {
+      "name": "initialize_group",
+      "docs": [
+        "Create a new arisan group with a USDC vault."
+      ],
+      "discriminator": [
+        191,
+        73,
+        34,
+        229,
+        233,
+        213,
+        189,
+        173
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "group",
+          "writable": true
+        },
+        {
+          "name": "usdc_mint",
+          "docs": [
+            "The USDC mint (or any SPL token mint)."
+          ]
+        },
+        {
+          "name": "vault",
+          "docs": [
+            "The vault token account (PDA-owned) to hold USDC deposits."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "group"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "rent",
+          "address": "SysvarRent111111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "dues_amount",
+          "type": "u64"
+        },
+        {
+          "name": "max_members",
+          "type": "u8"
+        }
+      ]
     },
     {
       "name": "join_group",
-      "docs": ["Join an existing arisan group. Creates a reputation PDA if new user."],
-      "discriminator": [121, 56, 199, 19, 250, 70, 44, 184],
+      "docs": [
+        "Join an existing arisan group. Creates a reputation PDA if new user."
+      ],
+      "discriminator": [
+        121,
+        56,
+        199,
+        19,
+        250,
+        70,
+        44,
+        184
+      ],
       "accounts": [
-        { "name": "user", "writable": true, "signer": true },
-        { "name": "group", "writable": true },
-        { "name": "reputation", "docs": ["User reputation PDA — init_if_needed so new users get one automatically."], "writable": true, "pda": { "seeds": [{ "kind": "const", "value": [114,101,112,117,116,97,116,105,111,110] }, { "kind": "account", "path": "user" }] } },
-        { "name": "system_program", "address": "11111111111111111111111111111111" }
+        {
+          "name": "user",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "group",
+          "writable": true
+        },
+        {
+          "name": "reputation",
+          "docs": [
+            "User reputation PDA — init_if_needed so new users get one automatically."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  112,
+                  117,
+                  116,
+                  97,
+                  116,
+                  105,
+                  111,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
       ],
       "args": []
     },
     {
       "name": "pay_dues",
-      "docs": ["Pay dues for the current round (USDC transfer to vault)."],
-      "discriminator": [96, 90, 64, 205, 128, 32, 220, 68],
+      "docs": [
+        "Pay dues for the current round (USDC transfer to vault)."
+      ],
+      "discriminator": [
+        96,
+        90,
+        64,
+        205,
+        128,
+        32,
+        220,
+        68
+      ],
       "accounts": [
-        { "name": "user", "writable": true, "signer": true },
-        { "name": "group", "writable": true },
-        { "name": "user_token_account", "docs": ["User's USDC token account (source of funds)."], "writable": true },
-        { "name": "vault", "docs": ["The vault token account (destination)."], "writable": true },
-        { "name": "reputation", "docs": ["User's reputation PDA — updated on each successful payment."], "writable": true, "pda": { "seeds": [{ "kind": "const", "value": [114,101,112,117,116,97,116,105,111,110] }, { "kind": "account", "path": "user" }] } },
-        { "name": "token_program", "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA" }
+        {
+          "name": "user",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "group",
+          "writable": true
+        },
+        {
+          "name": "user_token_account",
+          "docs": [
+            "User's USDC token account (source of funds)."
+          ],
+          "writable": true
+        },
+        {
+          "name": "vault",
+          "docs": [
+            "The vault token account (destination)."
+          ],
+          "writable": true
+        },
+        {
+          "name": "reputation",
+          "docs": [
+            "User's reputation PDA — updated on each successful payment."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  112,
+                  117,
+                  116,
+                  97,
+                  116,
+                  105,
+                  111,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
       ],
       "args": []
     },
     {
       "name": "slash_defaulter",
-      "docs": ["Slash a defaulting winner and redistribute their locked funds."],
-      "discriminator": [70, 94, 170, 113, 252, 54, 188, 174],
+      "docs": [
+        "Slash a defaulting winner and redistribute their locked funds."
+      ],
+      "discriminator": [
+        70,
+        94,
+        170,
+        113,
+        252,
+        54,
+        188,
+        174
+      ],
       "accounts": [
-        { "name": "admin", "writable": true, "signer": true },
-        { "name": "group" },
-        { "name": "locked_payout", "writable": true },
-        { "name": "defaulter_reputation", "writable": true, "pda": { "seeds": [{ "kind": "const", "value": [114,101,112,117,116,97,116,105,111,110] }, { "kind": "account", "path": "locked_payout.winner", "account": "LockedPayout" }] } },
-        { "name": "vault", "writable": true },
-        { "name": "distribution_account", "docs": ["Account to receive slashed funds for redistribution."], "writable": true },
-        { "name": "token_program", "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA" }
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "group"
+        },
+        {
+          "name": "locked_payout",
+          "writable": true
+        },
+        {
+          "name": "defaulter_reputation",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  112,
+                  117,
+                  116,
+                  97,
+                  116,
+                  105,
+                  111,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "locked_payout.winner",
+                "account": "LockedPayout"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault",
+          "writable": true
+        },
+        {
+          "name": "distribution_account",
+          "docs": [
+            "Account to receive slashed funds for redistribution."
+          ],
+          "writable": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
       ],
       "args": []
     }
   ],
   "accounts": [
-    { "name": "ArisanGroup", "discriminator": [92, 194, 254, 7, 78, 187, 105, 159] },
-    { "name": "LockedPayout", "discriminator": [70, 180, 42, 61, 3, 78, 205, 119] },
-    { "name": "UserReputation", "discriminator": [86, 95, 94, 218, 215, 219, 207, 37] }
+    {
+      "name": "ArisanGroup",
+      "discriminator": [
+        92,
+        194,
+        254,
+        7,
+        78,
+        187,
+        105,
+        159
+      ]
+    },
+    {
+      "name": "CreatorLottery",
+      "discriminator": [
+        39,
+        116,
+        70,
+        252,
+        153,
+        238,
+        25,
+        234
+      ]
+    },
+    {
+      "name": "LockedPayout",
+      "discriminator": [
+        70,
+        180,
+        42,
+        61,
+        3,
+        78,
+        205,
+        119
+      ]
+    },
+    {
+      "name": "UserReputation",
+      "discriminator": [
+        86,
+        95,
+        94,
+        218,
+        215,
+        219,
+        207,
+        37
+      ]
+    }
   ],
   "errors": [
-    { "code": 6000, "name": "InvalidMemberCount", "msg": "Member count must be between 3 and 20" },
-    { "code": 6001, "name": "InvalidDuesAmount", "msg": "Dues amount must be greater than 0" },
-    { "code": 6002, "name": "GroupNotActive", "msg": "Group is not active" },
-    { "code": 6003, "name": "GroupAlreadyLocked", "msg": "Group is already locked, no new members" },
-    { "code": 6004, "name": "AlreadyMember", "msg": "User is already a member of this group" },
-    { "code": 6005, "name": "GroupFull", "msg": "Group is full" },
-    { "code": 6006, "name": "GroupNotLocked", "msg": "Group is not locked yet" },
-    { "code": 6007, "name": "RoundNotStarted", "msg": "Round has not started" },
-    { "code": 6008, "name": "NotAMember", "msg": "User is not a member of this group" },
-    { "code": 6009, "name": "AlreadyPaidThisRound", "msg": "Already paid dues for this round" },
-    { "code": 6010, "name": "NotAllPaid", "msg": "Not all members have paid dues for this round" },
-    { "code": 6011, "name": "ArisanComplete", "msg": "All rounds are complete" },
-    { "code": 6012, "name": "NoEligibleMembers", "msg": "No eligible members for the draw" },
-    { "code": 6013, "name": "InvalidTokenAccount", "msg": "Invalid token account" },
-    { "code": 6014, "name": "InvalidMint", "msg": "Invalid mint" },
-    { "code": 6015, "name": "InvalidVault", "msg": "Invalid vault" },
-    { "code": 6016, "name": "InvalidGroup", "msg": "Invalid group" },
-    { "code": 6017, "name": "Unauthorized", "msg": "Unauthorized" },
-    { "code": 6018, "name": "PayoutAlreadyResolved", "msg": "Payout already resolved" },
-    { "code": 6019, "name": "NothingToClaim", "msg": "Nothing to claim" },
-    { "code": 6020, "name": "MustPayDuesFirst", "msg": "Must pay dues first before claiming" },
-    { "code": 6021, "name": "MemberDidPay", "msg": "Member already paid, cannot slash" },
-    { "code": 6022, "name": "NothingToSlash", "msg": "Nothing to slash" },
-    { "code": 6023, "name": "NoActiveMembers", "msg": "No active members to distribute to" }
+    {
+      "code": 6000,
+      "name": "InvalidMemberCount",
+      "msg": "Member count must be between 3 and 20"
+    },
+    {
+      "code": 6001,
+      "name": "InvalidDuesAmount",
+      "msg": "Dues amount must be greater than 0"
+    },
+    {
+      "code": 6002,
+      "name": "GroupNotActive",
+      "msg": "Group is not active"
+    },
+    {
+      "code": 6003,
+      "name": "GroupAlreadyLocked",
+      "msg": "Group is already locked, no new members"
+    },
+    {
+      "code": 6004,
+      "name": "AlreadyMember",
+      "msg": "User is already a member of this group"
+    },
+    {
+      "code": 6005,
+      "name": "GroupFull",
+      "msg": "Group is full"
+    },
+    {
+      "code": 6006,
+      "name": "GroupNotLocked",
+      "msg": "Group is not locked yet"
+    },
+    {
+      "code": 6007,
+      "name": "RoundNotStarted",
+      "msg": "Round has not started"
+    },
+    {
+      "code": 6008,
+      "name": "NotAMember",
+      "msg": "User is not a member of this group"
+    },
+    {
+      "code": 6009,
+      "name": "AlreadyPaidThisRound",
+      "msg": "Already paid dues for this round"
+    },
+    {
+      "code": 6010,
+      "name": "NotAllPaid",
+      "msg": "Not all members have paid dues for this round"
+    },
+    {
+      "code": 6011,
+      "name": "ArisanComplete",
+      "msg": "All rounds are complete"
+    },
+    {
+      "code": 6012,
+      "name": "NoEligibleMembers",
+      "msg": "No eligible members for the draw"
+    },
+    {
+      "code": 6013,
+      "name": "InvalidTokenAccount",
+      "msg": "Invalid token account"
+    },
+    {
+      "code": 6014,
+      "name": "InvalidMint",
+      "msg": "Invalid mint"
+    },
+    {
+      "code": 6015,
+      "name": "InvalidVault",
+      "msg": "Invalid vault"
+    },
+    {
+      "code": 6016,
+      "name": "InvalidGroup",
+      "msg": "Invalid group"
+    },
+    {
+      "code": 6017,
+      "name": "Unauthorized",
+      "msg": "Unauthorized"
+    },
+    {
+      "code": 6018,
+      "name": "PayoutAlreadyResolved",
+      "msg": "Payout already resolved"
+    },
+    {
+      "code": 6019,
+      "name": "NothingToClaim",
+      "msg": "Nothing to claim"
+    },
+    {
+      "code": 6020,
+      "name": "MustPayDuesFirst",
+      "msg": "Must pay dues first before claiming"
+    },
+    {
+      "code": 6021,
+      "name": "MemberDidPay",
+      "msg": "Member already paid, cannot slash"
+    },
+    {
+      "code": 6022,
+      "name": "NothingToSlash",
+      "msg": "Nothing to slash"
+    },
+    {
+      "code": 6023,
+      "name": "NoActiveMembers",
+      "msg": "No active members to distribute to"
+    },
+    {
+      "code": 6024,
+      "name": "InvalidCreatorShare",
+      "msg": "Creator share must be between 20% and 70%"
+    },
+    {
+      "code": 6025,
+      "name": "TicketPriceTooLow",
+      "msg": "Ticket price must be at least 0.1 USDC"
+    },
+    {
+      "code": 6026,
+      "name": "TooManyWinners",
+      "msg": "Maximum 5 winners allowed"
+    },
+    {
+      "code": 6027,
+      "name": "InvalidPercentageSum",
+      "msg": "Sum of all percentages must equal 100"
+    },
+    {
+      "code": 6028,
+      "name": "InvalidEndTime",
+      "msg": "End time must be in the future"
+    },
+    {
+      "code": 6029,
+      "name": "MathOverflow",
+      "msg": "Math overflow"
+    },
+    {
+      "code": 6030,
+      "name": "InvalidTicketAmount",
+      "msg": "Amount sent is not a multiple of ticket price"
+    },
+    {
+      "code": 6031,
+      "name": "LotteryEnded",
+      "msg": "Lottery has already ended"
+    },
+    {
+      "code": 6032,
+      "name": "LotteryStillActive",
+      "msg": "Lottery is still active, wait until end time"
+    },
+    {
+      "code": 6033,
+      "name": "LotteryAlreadyDrawn",
+      "msg": "Lottery already drawn"
+    }
   ],
   "types": [
     {
       "name": "ArisanGroup",
-      "docs": ["State of the arisan group — stored as a PDA."],
-      "type": { "kind": "struct", "fields": [
-        { "name": "admin", "docs": ["The group admin (creator)."], "type": "pubkey" },
-        { "name": "usdc_mint", "docs": ["The USDC mint address."], "type": "pubkey" },
-        { "name": "vault", "docs": ["The vault token account (PDA-owned) holding USDC."], "type": "pubkey" },
-        { "name": "dues_amount", "docs": ["Amount of dues each member must pay per round (in USDC smallest unit)."], "type": "u64" },
-        { "name": "max_members", "docs": ["Maximum number of members in this group."], "type": "u8" },
-        { "name": "member_count", "docs": ["Current active member count."], "type": "u8" },
-        { "name": "current_round", "docs": ["Current round number (starts at 1)."], "type": "u8" },
-        { "name": "total_rounds", "docs": ["Total number of rounds (= max_members, one winner per round)."], "type": "u8" },
-        { "name": "is_active", "docs": ["Whether the arisan group is currently active."], "type": "bool" },
-        { "name": "is_locked", "docs": ["Whether all members have joined and the group is locked for play."], "type": "bool" },
-        { "name": "bump", "docs": ["Bump seed for the group PDA."], "type": "u8" },
-        { "name": "vault_bump", "docs": ["Bump seed for the vault PDA."], "type": "u8" },
-        { "name": "members", "docs": ["Members list."], "type": { "vec": { "defined": { "name": "MemberStatus" } } } }
-      ]}
+      "docs": [
+        "State of the arisan group — stored as a PDA."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "admin",
+            "docs": [
+              "The group admin (creator)."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "usdc_mint",
+            "docs": [
+              "The USDC mint address."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "vault",
+            "docs": [
+              "The vault token account (PDA-owned) holding USDC."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "dues_amount",
+            "docs": [
+              "Amount of dues each member must pay per round (in USDC smallest unit)."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "max_members",
+            "docs": [
+              "Maximum number of members in this group."
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "member_count",
+            "docs": [
+              "Current active member count."
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "current_round",
+            "docs": [
+              "Current round number (starts at 1)."
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "total_rounds",
+            "docs": [
+              "Total number of rounds (= max_members, one winner per round)."
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "is_active",
+            "docs": [
+              "Whether the arisan group is currently active."
+            ],
+            "type": "bool"
+          },
+          {
+            "name": "is_locked",
+            "docs": [
+              "Whether all members have joined and the group is locked for play."
+            ],
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "docs": [
+              "Bump seed for the group PDA."
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "vault_bump",
+            "docs": [
+              "Bump seed for the vault PDA."
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "members",
+            "docs": [
+              "Members list."
+            ],
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "MemberStatus"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "CreatorLottery",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "creator",
+            "type": "pubkey"
+          },
+          {
+            "name": "usdc_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "vault",
+            "type": "pubkey"
+          },
+          {
+            "name": "ticket_price",
+            "type": "u64"
+          },
+          {
+            "name": "creator_share_pct",
+            "type": "u8"
+          },
+          {
+            "name": "winner_shares_pct",
+            "type": "bytes"
+          },
+          {
+            "name": "end_time",
+            "type": "i64"
+          },
+          {
+            "name": "total_tickets_sold",
+            "type": "u64"
+          },
+          {
+            "name": "total_pool",
+            "type": "u64"
+          },
+          {
+            "name": "participants",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "LotteryParticipant"
+                }
+              }
+            }
+          },
+          {
+            "name": "is_active",
+            "type": "bool"
+          },
+          {
+            "name": "winning_wallets",
+            "type": {
+              "vec": "pubkey"
+            }
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "vault_bump",
+            "type": "u8"
+          }
+        ]
+      }
     },
     {
       "name": "LockedPayout",
-      "docs": ["Tracks the locked portion of a winner's payout.", "Created when someone wins and partially unlocked as they keep paying dues."],
-      "type": { "kind": "struct", "fields": [
-        { "name": "winner", "docs": ["The winner's wallet."], "type": "pubkey" },
-        { "name": "group", "docs": ["The arisan group this payout belongs to."], "type": "pubkey" },
-        { "name": "total_locked", "docs": ["Total locked amount (USDC smallest unit)."], "type": "u64" },
-        { "name": "amount_claimed", "docs": ["Amount already claimed/unlocked."], "type": "u64" },
-        { "name": "unlock_per_round", "docs": ["Amount unlocked per qualifying round."], "type": "u64" },
-        { "name": "remaining_rounds", "docs": ["Remaining rounds the winner must pay to fully unlock."], "type": "u8" },
-        { "name": "is_resolved", "docs": ["Whether this payout has been fully resolved (claimed or slashed)."], "type": "bool" },
-        { "name": "bump", "docs": ["Bump seed for the PDA."], "type": "u8" }
-      ]}
+      "docs": [
+        "Tracks the locked portion of a winner's payout.",
+        "Created when someone wins and partially unlocked as they keep paying dues."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "winner",
+            "docs": [
+              "The winner's wallet."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "group",
+            "docs": [
+              "The arisan group this payout belongs to."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "total_locked",
+            "docs": [
+              "Total locked amount (USDC smallest unit)."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "amount_claimed",
+            "docs": [
+              "Amount already claimed/unlocked."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "unlock_per_round",
+            "docs": [
+              "Amount unlocked per qualifying round."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "remaining_rounds",
+            "docs": [
+              "Remaining rounds the winner must pay to fully unlock."
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "is_resolved",
+            "docs": [
+              "Whether this payout has been fully resolved (claimed or slashed)."
+            ],
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "docs": [
+              "Bump seed for the PDA."
+            ],
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "LotteryParticipant",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "wallet",
+            "type": "pubkey"
+          },
+          {
+            "name": "tickets_bought",
+            "type": "u64"
+          }
+        ]
+      }
     },
     {
       "name": "MemberStatus",
-      "docs": ["Status of each member within a group."],
-      "type": { "kind": "struct", "fields": [
-        { "name": "wallet", "docs": ["The member's wallet pubkey."], "type": "pubkey" },
-        { "name": "paid_current_round", "docs": ["Whether this member has paid dues for the current round."], "type": "bool" },
-        { "name": "has_won", "docs": ["Whether this member has already won a payout."], "type": "bool" }
-      ]}
+      "docs": [
+        "Status of each member within a group."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "wallet",
+            "docs": [
+              "The member's wallet pubkey."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "paid_current_round",
+            "docs": [
+              "Whether this member has paid dues for the current round."
+            ],
+            "type": "bool"
+          },
+          {
+            "name": "has_won",
+            "docs": [
+              "Whether this member has already won a payout."
+            ],
+            "type": "bool"
+          }
+        ]
+      }
     },
     {
       "name": "UserReputation",
-      "docs": ["On-chain reputation PDA — unique per user, portable across groups.", "This is the \"credit score\" that determines delayed payout percentages."],
-      "type": { "kind": "struct", "fields": [
-        { "name": "user", "docs": ["The user's wallet pubkey."], "type": "pubkey" },
-        { "name": "completed_groups", "docs": ["Total arisan groups completed successfully."], "type": "u16" },
-        { "name": "successful_rounds", "docs": ["Total rounds where the user paid on time."], "type": "u16" },
-        { "name": "defaulted_rounds", "docs": ["Total rounds where the user defaulted (missed payment)."], "type": "u16" },
-        { "name": "score", "docs": ["Reputation score (0 - 100). Higher = more trusted."], "type": "u8" },
-        { "name": "bump", "docs": ["Bump seed for the PDA."], "type": "u8" }
-      ]}
+      "docs": [
+        "On-chain reputation PDA — unique per user, portable across groups.",
+        "This is the \"credit score\" that determines delayed payout percentages."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "user",
+            "docs": [
+              "The user's wallet pubkey."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "completed_groups",
+            "docs": [
+              "Total arisan groups completed successfully."
+            ],
+            "type": "u16"
+          },
+          {
+            "name": "successful_rounds",
+            "docs": [
+              "Total rounds where the user paid on time."
+            ],
+            "type": "u16"
+          },
+          {
+            "name": "defaulted_rounds",
+            "docs": [
+              "Total rounds where the user defaulted (missed payment)."
+            ],
+            "type": "u16"
+          },
+          {
+            "name": "score",
+            "docs": [
+              "Reputation score (0 - 100). Higher = more trusted."
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "bump",
+            "docs": [
+              "Bump seed for the PDA."
+            ],
+            "type": "u8"
+          }
+        ]
+      }
     }
   ]
 }

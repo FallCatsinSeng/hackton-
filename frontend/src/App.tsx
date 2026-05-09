@@ -4,15 +4,18 @@ import { WalletMultiButton } from '@solana/wallet-adapter-react-ui'
 import Hero from './components/Hero'
 import Dashboard from './components/Dashboard'
 import GroupDetail from './components/GroupDetail'
+import LotteryDashboard from './components/LotteryDashboard'
+import LotteryDetail from './components/LotteryDetail'
 import Toast from './components/Toast'
 
-export type View = 'hero' | 'dashboard' | 'group'
+export type View = 'hero' | 'dashboard' | 'group' | 'lottery' | 'lotteryDetail'
 export type ToastMsg = { id: number; type: 'success' | 'error'; text: string }
 
 export default function App() {
   const { connected } = useWallet()
   const [view, setView] = useState<View>('hero')
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null)
+  const [selectedLottery, setSelectedLottery] = useState<string | null>(null)
   const [toasts, setToasts] = useState<ToastMsg[]>([])
 
   const addToast = (type: 'success' | 'error', text: string) => {
@@ -26,24 +29,50 @@ export default function App() {
     setView('group')
   }
 
+  const openLottery = (address: string) => {
+    setSelectedLottery(address)
+    setView('lotteryDetail')
+  }
+
   const handleConnect = () => {
     if (connected) setView('dashboard')
   }
+
+  const isMainNav = view === 'dashboard' || view === 'lottery'
 
   return (
     <div className="app">
       {/* Navbar */}
       <nav className="navbar">
-        <div className="navbar-logo" onClick={() => setView(connected ? 'dashboard' : 'hero')} style={{ cursor: 'pointer' }}>
+        <div
+          className="navbar-logo"
+          onClick={() => setView(connected ? 'dashboard' : 'hero')}
+          style={{ cursor: 'pointer' }}
+        >
           <div className="logo-icon">🏦</div>
           <span>Arisan Protocol</span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          {connected && view !== 'dashboard' && (
-            <button className="btn btn-secondary btn-sm" onClick={() => setView('dashboard')}>
-              Dashboard
-            </button>
+
+        <div className="navbar-center">
+          {connected && (
+            <>
+              <button
+                className={`nav-tab ${view === 'dashboard' || view === 'group' ? 'active' : ''}`}
+                onClick={() => setView('dashboard')}
+              >
+                🏦 Arisan Groups
+              </button>
+              <button
+                className={`nav-tab ${view === 'lottery' || view === 'lotteryDetail' ? 'active' : ''}`}
+                onClick={() => setView('lottery')}
+              >
+                🎪 Creator Lottery
+              </button>
+            </>
           )}
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <WalletMultiButton onClick={handleConnect} />
         </div>
       </nav>
@@ -60,6 +89,16 @@ export default function App() {
           <GroupDetail
             groupAddress={selectedGroup}
             onBack={() => setView('dashboard')}
+            addToast={addToast}
+          />
+        )}
+        {view === 'lottery' && (
+          <LotteryDashboard onOpenLottery={openLottery} addToast={addToast} />
+        )}
+        {view === 'lotteryDetail' && selectedLottery && (
+          <LotteryDetail
+            lotteryAddress={selectedLottery}
+            onBack={() => setView('lottery')}
             addToast={addToast}
           />
         )}
