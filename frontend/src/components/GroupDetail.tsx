@@ -137,7 +137,7 @@ export default function GroupDetail({ groupAddress, onBack, addToast }: Props) {
       <div className="detail-header">
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
           <div>
-            <div className="detail-title">🏦 Arisan Group</div>
+            <div className="detail-title">🏦 Circa Group</div>
             <div className="detail-subtitle" style={{ fontFamily: 'monospace' }}>{groupAddress}</div>
           </div>
           <div style={{ display: 'flex', gap: '8px' }}>

@@ -50,7 +50,7 @@ export default function App() {
           style={{ cursor: 'pointer' }}
         >
           <div className="logo-icon">🏦</div>
-          <span>Arisan Protocol</span>
+          <span>Circa</span>
         </div>
 
         <div className="navbar-center">
@@ -60,7 +60,7 @@ export default function App() {
                 className={`nav-tab ${view === 'dashboard' || view === 'group' ? 'active' : ''}`}
                 onClick={() => setView('dashboard')}
               >
-                🏦 Arisan Groups
+                🏦 Circa Groups
               </button>
               <button
                 className={`nav-tab ${view === 'lottery' || view === 'lotteryDetail' ? 'active' : ''}`}

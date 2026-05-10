@@ -18,7 +18,7 @@ export default function Hero({ onEnter }: HeroProps) {
       </div>
 
       <h1>
-        Arisan, <span>Trustless.</span><br />
+        Circa, <span>Trustless.</span><br />
         Reputation-Powered.
       </h1>
 

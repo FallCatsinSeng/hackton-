@@ -41,7 +41,7 @@ export default function CreateGroupModal({ onClose, onCreated, addToast }: Props
     <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
       <div className="modal">
         <div className="modal-header">
-          <span className="modal-title">Create Arisan Group</span>
+          <span className="modal-title">Create Circa Group</span>
           <button className="modal-close" onClick={onClose}>×</button>
         </div>
 
@@ -53,7 +53,7 @@ export default function CreateGroupModal({ onClose, onCreated, addToast }: Props
             onChange={e => setUsdcMint(e.target.value)}
             placeholder="TokenMintAddress..."
           />
-          <div className="form-hint">On localnet, use the mock USDC mint from your test setup</div>
+          <div className="form-hint">Enter the USDC Mint Address for this group</div>
         </div>
 
         <div className="form-group">

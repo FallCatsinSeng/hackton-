@@ -43,7 +43,7 @@ export default function Dashboard({ onOpenGroup, addToast }: Props) {
         <div className="empty-state">
           <div className="empty-icon">🔌</div>
           <div className="empty-title">Connect your wallet</div>
-          <div className="empty-desc">Connect Phantom to interact with Arisan Protocol</div>
+          <div className="empty-desc">Connect Phantom to interact with Circa</div>
         </div>
       </div>
     )
@@ -54,7 +54,7 @@ export default function Dashboard({ onOpenGroup, addToast }: Props) {
       {/* Header */}
       <div className="dashboard-header">
         <div>
-          <h2>🏦 Arisan Groups</h2>
+          <h2>🏦 Circa Groups</h2>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: '4px' }}>
             {publicKey.toBase58().slice(0, 8)}...{publicKey.toBase58().slice(-6)}
           </p>
@@ -82,7 +82,7 @@ export default function Dashboard({ onOpenGroup, addToast }: Props) {
         <div className="empty-state">
           <div className="empty-icon">🌱</div>
           <div className="empty-title">No groups yet</div>
-          <div className="empty-desc">Create the first arisan group on-chain!</div>
+          <div className="empty-desc">Create the first circa group on-chain!</div>
           <button className="btn btn-primary" onClick={() => setShowCreate(true)}>
             + Create Group
           </button>
@@ -104,7 +104,7 @@ export default function Dashboard({ onOpenGroup, addToast }: Props) {
               >
                 <div className="group-card-header">
                   <div>
-                    <div className="group-card-title">Arisan Group</div>
+                    <div className="group-card-title">Circa Group</div>
                     <div className="group-card-subtitle">{g.address.slice(0, 8)}...{g.address.slice(-6)}</div>
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-end' }}>

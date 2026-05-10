@@ -13,3 +13,5 @@ Thumbs.db
 logs/
 
 node_modules/
+
+docs
