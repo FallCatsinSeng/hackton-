@@ -1,4 +1,4 @@
-import { useConnection, useWallet } from '@solana/wallet-adapter-react'
+import { useConnection, useWallet, useAnchorWallet } from '@solana/wallet-adapter-react'
 import { Program, AnchorProvider, BN, web3 } from '@coral-xyz/anchor'
 import { PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY } from '@solana/web3.js'
 import {
@@ -61,39 +61,37 @@ export interface LotteryInfo {
 export function useArisan() {
   const { connection } = useConnection()
   const wallet = useWallet()
+  const anchorWallet = useAnchorWallet()
 
   const getProgram = () => {
-    if (!wallet.publicKey || !wallet.signTransaction || !wallet.signAllTransactions) {
-      throw new Error('Wallet not connected')
-    }
-    const provider = new AnchorProvider(connection, wallet as any, {
+    if (!anchorWallet) throw new Error('Wallet not connected')
+    const provider = new AnchorProvider(connection, anchorWallet, {
       commitment: 'confirmed',
       skipPreflight: true,
-      preflightCommitment: 'processed',
     })
     return new Program(idl as any, provider)
   }
 
   const getReadonlyProgram = () => {
-    const provider = new AnchorProvider(connection, {} as any, {
+    const dummyWallet = { publicKey: PublicKey.default, signTransaction: async (t: any) => t, signAllTransactions: async (t: any) => t }
+    const provider = new AnchorProvider(connection, dummyWallet as any, {
       commitment: 'confirmed',
-      skipPreflight: true,
     })
     return new Program(idl as any, provider)
   }
 
-  // Helper: use Anchor .rpc() directly - works correctly with Phantom wallet
   const sendTx = async (txBuilder: any): Promise<string> => {
-    if (!wallet.publicKey || !wallet.signTransaction) throw new Error('Wallet not connected')
-    try {
-      const txId = await txBuilder.rpc({ skipPreflight: true, commitment: 'confirmed' })
-      return txId
-    } catch (e: any) {
-      const logs = e?.logs?.join('\n') || ''
-      console.error('TX logs:', logs)
-      const anchor = logs.match(/AnchorError.+?: (.+)/)?.[1] || logs.match(/Program log: Error: (.+)/)?.[1]
-      throw new Error(anchor || e.message)
-    }
+    if (!anchorWallet) throw new Error('Wallet not connected')
+    const tx = await txBuilder.transaction()
+    const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed')
+    tx.recentBlockhash = blockhash
+    tx.lastValidBlockHeight = lastValidBlockHeight
+    tx.feePayer = anchorWallet.publicKey
+    const signed = await anchorWallet.signTransaction(tx)
+    const txId = await connection.sendRawTransaction(signed.serialize(), { skipPreflight: true, maxRetries: 10 })
+    const result = await connection.confirmTransaction({ signature: txId, blockhash, lastValidBlockHeight }, 'confirmed')
+    if (result.value.err) throw new Error('TX failed: ' + JSON.stringify(result.value.err))
+    return txId
   }
 
   // =====================
@@ -356,9 +354,6 @@ export function useArisan() {
         lottery: lotteryPda,
         usdcMint: mintPk,
         vault: vaultPda,
-        systemProgram: SystemProgram.programId,
-        tokenProgram: TOKEN_PROGRAM_ID,
-        rent: SYSVAR_RENT_PUBKEY,
       }))
   }
 

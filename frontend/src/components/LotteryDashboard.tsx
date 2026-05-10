@@ -276,7 +276,7 @@ function CreateLotteryModal({
   const { initializeLottery } = useArisan()
   const [loading, setLoading] = useState(false)
   const [form, setForm] = useState({
-    usdcMint: '',
+    usdcMint: '44FrpHYZ1JoBSA8dFMZCaCMRu79twMusE6DBztUK2ezC',
     ticketPrice: '0.1',
     creatorShare: '40',
     winnerShares: '35, 15, 10',

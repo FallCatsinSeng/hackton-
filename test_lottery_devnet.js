@@ -1,63 +1,60 @@
 const anchor = require("@coral-xyz/anchor");
 const { BN, web3 } = anchor;
+const fs = require("fs");
 
 async function main() {
-  const connection = new web3.Connection("https://api.devnet.solana.com", "confirmed");
-  
-  // Load CLI wallet as signer
-  const fs = require("fs");
+  const conn = new web3.Connection("https://api.devnet.solana.com", "confirmed");
   const secret = JSON.parse(fs.readFileSync("/root/.config/solana/id.json"));
-  const keypair = web3.Keypair.fromSecretKey(new Uint8Array(secret));
-  
-  const wallet = new anchor.Wallet(keypair);
-  const provider = new anchor.AnchorProvider(connection, wallet, { commitment: "confirmed", skipPreflight: true });
-  anchor.setProvider(provider);
-  
+  const payer = web3.Keypair.fromSecretKey(new Uint8Array(secret));
+  const wallet = new anchor.Wallet(payer);
+  const provider = new anchor.AnchorProvider(conn, wallet, { commitment: "confirmed" });
   const idl = JSON.parse(fs.readFileSync("/workspace/arisan_protocol/target/idl/arisan_protocol.json"));
   const program = new anchor.Program(idl, provider);
-  
+
   const USDC_MINT = new web3.PublicKey("4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU");
-  const endTime = Math.floor(Date.now() / 1000) + 3600; // 1 hour from now
+  const endTime = Math.floor(Date.now() / 1000) + 7200;
   const endTimeBN = new BN(endTime);
-  
+
   const [lotteryPda] = web3.PublicKey.findProgramAddressSync(
-    [Buffer.from("creator_lottery"), keypair.publicKey.toBuffer(), endTimeBN.toArrayLike(Buffer, "le", 8)],
+    [Buffer.from("creator_lottery"), payer.publicKey.toBuffer(), endTimeBN.toArrayLike(Buffer, "le", 8)],
     program.programId
   );
-  
   const [vaultPda] = web3.PublicKey.findProgramAddressSync(
     [Buffer.from("lottery_vault"), lotteryPda.toBuffer()],
     program.programId
   );
-  
-  console.log("Creator:", keypair.publicKey.toBase58());
-  console.log("Lottery PDA:", lotteryPda.toBase58());
-  console.log("Vault PDA:", vaultPda.toBase58());
-  console.log("endTime:", endTime);
-  
-  try {
-    const tx = await program.methods
-      .initializeCreatorLottery(
-        new BN(100000), // 0.1 USDC
-        35,
-        Buffer.from([35, 15, 10, 5]),
-        endTimeBN
-      )
-      .accounts({
-        creator: keypair.publicKey,
-        lottery: lotteryPda,
-        usdcMint: USDC_MINT,
-        vault: vaultPda,
-      })
-      .rpc({ skipPreflight: false, commitment: "confirmed" });
-    
-    console.log("SUCCESS! TX:", tx);
-  } catch (e) {
-    console.error("ERROR:", e.message);
-    if (e.logs) {
-      console.error("LOGS:", e.logs.join("\n"));
-    }
-  }
-}
 
-main().catch(console.error);
+  // Build TX via .transaction() — same as frontend
+  const tx = await program.methods
+    .initializeCreatorLottery(
+      new BN(300000),
+      43,
+      Buffer.from([35, 15, 7]),
+      endTimeBN
+    )
+    .accounts({
+      creator: payer.publicKey,
+      lottery: lotteryPda,
+      usdcMint: USDC_MINT,
+      vault: vaultPda,
+    })
+    .transaction();
+
+  console.log("TX instructions:", tx.instructions.length);
+  tx.instructions.forEach((ix, i) => {
+    console.log("IX", i, "program:", ix.programId.toBase58());
+    ix.keys.forEach((k, j) => {
+      console.log("  ["+j+"]", k.pubkey.toBase58(), k.isSigner?"S":"", k.isWritable?"W":"");
+    });
+  });
+
+  const { blockhash } = await conn.getLatestBlockhash("confirmed");
+  tx.recentBlockhash = blockhash;
+  tx.feePayer = payer.publicKey;
+  tx.sign(payer);
+
+  const sim = await conn.simulateTransaction(tx);
+  console.log("\nSimulation err:", JSON.stringify(sim.value.err));
+  if (sim.value.logs) sim.value.logs.forEach(l => console.log(" ", l));
+}
+main().catch(e => console.error("FATAL:", e.message));
