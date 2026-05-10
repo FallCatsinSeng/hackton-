@@ -54,11 +54,9 @@ html, body, #root {
   font-size: 1.2rem; font-weight: 700;
 }
 
-.logo-icon {
-  width: 36px; height: 36px; border-radius: 10px;
-  background: linear-gradient(135deg, var(--purple), var(--green));
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.2rem;
+.logo-img {
+  height: 42px; /* Sesuaikan ukuran logonya */
+  object-fit: contain;
 }
 
 .main { flex: 1; }

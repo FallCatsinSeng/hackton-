@@ -49,8 +49,7 @@ export default function App() {
           onClick={() => setView(connected ? 'dashboard' : 'hero')}
           style={{ cursor: 'pointer' }}
         >
-          <div className="logo-icon">🏦</div>
-          <span>Circa</span>
+          <img src="/logo.png" alt="Circa Logo" className="logo-img" />
         </div>
 
         <div className="navbar-center">
